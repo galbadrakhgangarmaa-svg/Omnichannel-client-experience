@@ -4,33 +4,45 @@
 Before performing exploratory data analysis (EDA) and executive dashboarding, raw customer feedback data requires normalization. 
 This SQL script extracts raw telemetry from dataset and prepares a cleaned analytical view optimized for Tableau. 
 
-### Key Data Transformations Applied
+-- =============================================================================
+-- Data Transformation & Standardization Layer
+-- Target Table: workspace.default.customer_satisfication_dataset
+-- Destination View: customer_satisfaction_cleaned
+-- =============================================================================
 
-* **Geographic Parsing (`Location` → `City` & `State`):** 
-  * *Method:* Applied `SUBSTRING_INDEX` to decouple concatenated string values (e.g., `"Houston.TX"`).
-  * *Impact:* Unlocks granular spatial mapping by separating micro-market analysis (City level) from macro-regional reporting (State level).
-* **Demographic Standardization (`Gender` → `age` Column Alias):**
-  * *Method:* Binned and standardized categorical gender identifiers into standardized single-letter codes (`'M'`, `'F'`, `'Other'`).
-
-
+CREATE OR REPLACE VIEW workspace.default.customer_satisfaction_cleaned AS
 SELECT
     Customer_ID,
-    Group,
-    Satisfaction_Score,
+    `Group` AS Customer_Group,
     Age,
-    CASE WHEN Gender = 'Male' then 'M'
-    WHEN Gender = 'Female' then 'F'
-    ELSE 'Other'
-    END as age, 
-    SUBSTRING_INDEX(Location, '.', 1) as City, 
-    SUBSTRING_INDEX(Location, '.', -1) as State,
-    Purchase_History, 
-    Support_Contacted, 
-    Loyalty_Level, 
-    Satisfaction_Factor, 
-    Latitude, 
-    Longitude
-From workspace.default.customer_satisfication_dataset
-
-
+    
+    -- Standardized Gender Identifier
+    CASE 
+        WHEN Gender = 'Male' THEN 'M'
+        WHEN Gender = 'Female' THEN 'F'
+        ELSE 'Other'
+    END AS Gender_Code,
+    
+    -- Split Location into City and State
+    TRIM(SUBSTRING_INDEX(Location, '.', 1)) AS City,
+    TRIM(SUBSTRING_INDEX(Location, '.', -1)) AS State,
+    Latitude,
+    Longitude,
+    
+    -- CSAT Raw Score & NPS/CSAT Tiers
+    Satisfaction_Score,
+    CASE 
+        WHEN Satisfaction_Score >= 9 THEN 'Promoter'
+        WHEN Satisfaction_Score >= 7 THEN 'Passive'
+        ELSE 'Detractor'
+    END AS CSAT_Segment,
+    
+    -- Behavioral & Operational Variables
+    Purchase_History,
+    CASE WHEN Purchase_History = 'Yes' THEN 1 ELSE 0 END AS Is_Repeat_Purchaser,
+    Support_Contacted,
+    Loyalty_Level,
+    Satisfaction_Factor
+    
+FROM workspace.default.customer_satisfication_dataset;
 

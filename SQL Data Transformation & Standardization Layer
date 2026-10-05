@@ -1,0 +1,36 @@
+## 2. SQL Data Transformation & Standardization Layer
+
+### Business Context & Data Strategy
+Before performing exploratory data analysis (EDA) and executive dashboarding, raw customer feedback data requires normalization. 
+This SQL script extracts raw telemetry from dataset and prepares a cleaned analytical view optimized for Tableau. 
+
+### Key Data Transformations Applied
+
+* **Geographic Parsing (`Location` → `City` & `State`):** 
+  * *Method:* Applied `SUBSTRING_INDEX` to decouple concatenated string values (e.g., `"Houston.TX"`).
+  * *Impact:* Unlocks granular spatial mapping by separating micro-market analysis (City level) from macro-regional reporting (State level).
+* **Demographic Standardization (`Gender` → `age` Column Alias):**
+  * *Method:* Binned and standardized categorical gender identifiers into standardized single-letter codes (`'M'`, `'F'`, `'Other'`).
+
+
+SELECT
+    Customer_ID,
+    Group,
+    Satisfaction_Score,
+    Age,
+    CASE WHEN Gender = 'Male' then 'M'
+    WHEN Gender = 'Female' then 'F'
+    ELSE 'Other'
+    END as age, 
+    SUBSTRING_INDEX(Location, '.', 1) as City, 
+    SUBSTRING_INDEX(Location, '.', -1) as State,
+    Purchase_History, 
+    Support_Contacted, 
+    Loyalty_Level, 
+    Satisfaction_Factor, 
+    Latitude, 
+    Longitude
+From workspace.default.customer_satisfication_dataset
+
+
+

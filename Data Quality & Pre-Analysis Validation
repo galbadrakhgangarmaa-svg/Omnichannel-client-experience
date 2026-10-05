@@ -1,11 +1,21 @@
 -- This sql codes for DATA VALIDATION of raw data to make sure data is ready to used and clean
 
-  ## Check duplication of customer unique id##
+## 1. Data Quality & Pre-Analysis Validation
+
+### 1. Business Purpose & Strategy
+Before running exploratory data analysis (EDA) or feature engineering, raw data must pass strict quality and sanity checks. 
+This script audits raw dataset for primary key uniqueness, boundary violations, domain range constraints, and unexpected NULL values. 
+
+Conducting data validation upfront ensures that downstream CSAT scores, customer segmentation, and geographical drivers are calculated on clean, reliable telemetry.
+
+### Data Audit Checklist SQL query & Findings
+
+  ## Uniqueness & Primary Keys** | `Customer_ID` | Verify there are no duplicate record IDs. | Distinct row count vs. total row count audit
   
      Select count(distinct *)
      From workspace.default.customer_satisfication_dataset
 
-  ## Check is there any other group than A,B,C ##
+  ## Filtering for non-standard categorical group than A,B,C ##
 
     Select *
     From workspace.default.customer_satisfication_dataset

@@ -1,0 +1,35 @@
+-- This sql codes for DATA VALIDATION of raw data to make sure data is ready to used and clean
+
+  ## Check duplication of customer unique id##
+  
+     Select count(distinct *)
+     From workspace.default.customer_satisfication_dataset
+
+  ## Check is there any other group than A,B,C ##
+
+    Select *
+    From workspace.default.customer_satisfication_dataset
+    Where group not in ('A', 'B', 'C')
+
+## Check is there any satisfication store less than 1 or more than 10 or empty ##
+
+    Select *
+    From workspace.default.customer_satisfication_dataset
+    Where Satisfaction_Score < 1 or Satisfaction_Score > 10 or Satisfaction_Score is null
+
+## Check if the age is null or less than 0 or more than 100 ##
+
+    Select *
+    From workspace.default.customer_satisfication_dataset
+    Where age is null or age > 100 or age <0
+
+## Check type of loyalty level ##
+
+    Select distinct Loyalty_Level
+    From workspace.default.customer_satisfication_dataset
+
+## Check different type of satisfication factor
+    
+    Select distinct Satisfaction_Factor
+    From workspace.default.customer_satisfication_dataset
+    
